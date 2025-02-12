@@ -126,6 +126,15 @@ local function createUI()
     SpecialFrame.Visible = false
     SpecialFrame.Parent = ScreenGui
 
+	local SpecialTitle = Instance.new("TextLabel")
+    SpecialTitle.Size = UDim2.new(1, 0, 0, 30)
+    SpecialTitle.Text = "Special Teleports"
+    SpecialTitle.TextSize = 18
+    SpecialTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SpecialTitle.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
+    SpecialTitle.Font = Enum.Font.SourceSansBold
+    SpecialTitle.Parent = SpecialFrame
+
     local SpecialScroll = Instance.new("ScrollingFrame")
     SpecialScroll.Size = UDim2.new(1, 0, 1, -40)
     SpecialScroll.Position = UDim2.new(0, 0, 0, 40)
