@@ -34,7 +34,8 @@ local IslandPositions = {
 local SpecialTeleports = {
     ["Fruits Shop"] = Vector3.new(865, 79, -218),
 ["Moria Boss"] = Vector3.new(-10325, 118, -2480),
-["Starving Ship"] = Vector3.new(-10842, 57, 9600),
+["GS Spawn"] = Vector3.new(-10842, 57, 9600),
+
 
 }
 
