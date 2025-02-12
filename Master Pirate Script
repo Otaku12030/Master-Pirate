@@ -9,12 +9,37 @@ end
 
 local ScreenGui
 
+-- Predefined teleport locations for islands
+local IslandPositions = {
+    ["Dark Castle"] = Vector3.new(-1420, 236, 3851),
+    ["Rovaniemi"] = Vector3.new(1883, 49, 8077),
+    ["Red Centipede"] = Vector3.new(5258, 100, -8116),
+    ["Shark Park"] = Vector3.new(-5719, 46, -3997),
+    ["Mystery Island"] = Vector3.new(-11676, 61, 87),
+    ["Desert Island"] = Vector3.new(-5262, 54, -1122),
+    ["Enies Lobby"] = Vector3.new(-6605, 51, 3841),
+    ["Baratie"] = Vector3.new(-3454, 108, -3213),
+    ["Amazon Lily"] = Vector3.new(8038, 407, -299),
+    ["Marksmanship Village"] = Vector3.new(-3449, 153, 7640),
+    ["Rovaniemi Town"] = Vector3.new(1266, 194, 6700),
+    ["Shell Island"] = Vector3.new(1147, 161, -3685),
+    ["SkyPark"] = Vector3.new(-8319, 641, 541),
+    ["Snow Island"] = Vector3.new(-3454, 160, 1412),
+    ["UnderWater Jail"] = Vector3.new(-16057, 132, 12132),
+    ["Thriller Bark"] = Vector3.new(-10149, 63, -2696),
+    ["Starter Island"] = Vector3.new(876, 66, -81),
+}
+
+-- Special teleport locations
+local SpecialTeleports = {
+    ["Fruits Shop"] = Vector3.new(-8000, 50, 3000),
+}
+
 local function createUI()
-    -- Destroy previous UI if it exists
     if ScreenGui then
         ScreenGui:Destroy()
     end
-    
+
     local character = player.Character or player.CharacterAdded:Wait()
 
     -- UI Creation
@@ -22,7 +47,7 @@ local function createUI()
     ScreenGui.Parent = game.CoreGui
 
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 200, 0, 300)
+    MainFrame.Size = UDim2.new(0, 200, 0, 350)
     MainFrame.Position = UDim2.new(1, -210, 0, 10)
     MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     MainFrame.BorderSizePixel = 2
@@ -38,7 +63,6 @@ local function createUI()
     Title.Font = Enum.Font.SourceSansBold
     Title.Parent = MainFrame
 
-    -- Close Button ("X")
     local CloseButton = Instance.new("TextButton")
     CloseButton.Size = UDim2.new(0, 25, 0, 25)
     CloseButton.Position = UDim2.new(1, -30, 0, 5)
@@ -48,7 +72,15 @@ local function createUI()
     CloseButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     CloseButton.Parent = MainFrame
 
-    -- Scrolling Frame for Island Buttons
+    local SpecialButton = Instance.new("TextButton")
+    SpecialButton.Size = UDim2.new(0, 25, 0, 25)
+    SpecialButton.Position = UDim2.new(0, 5, 0, 5)
+    SpecialButton.Text = "≡"
+    SpecialButton.TextSize = 16
+    SpecialButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+    SpecialButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    SpecialButton.Parent = MainFrame
+
     local ScrollingFrame = Instance.new("ScrollingFrame")
     ScrollingFrame.Size = UDim2.new(1, 0, 1, -40)
     ScrollingFrame.Position = UDim2.new(0, 0, 0, 40)
@@ -61,65 +93,78 @@ local function createUI()
     UIListLayout.Parent = ScrollingFrame
     UIListLayout.Padding = UDim.new(0, 5)
 
-    -- Function to Teleport Player
-    local function teleportToIsland(island)
-        local position = island:FindFirstChildWhichIsA("BasePart", true) and island:FindFirstChildWhichIsA("BasePart", true).Position + Vector3.new(0, 5, 0)
+    local function teleportToLocation(position)
         if position and character and character:FindFirstChild("HumanoidRootPart") then
             character.HumanoidRootPart.CFrame = CFrame.new(position)
         end
     end
 
-    -- Create Buttons for Each Island
-    for _, island in ipairs(AllIslands:GetChildren()) do
-        if island:IsA("Folder") or island:IsA("Model") then
-            local Button = Instance.new("TextButton")
-            Button.Size = UDim2.new(1, 0, 0, 30)
-            Button.Text = island.Name
-            Button.TextSize = 16
-            Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-            Button.Parent = ScrollingFrame
+    for islandName, position in pairs(IslandPositions) do
+        local Button = Instance.new("TextButton")
+        Button.Size = UDim2.new(1, 0, 0, 30)
+        Button.Text = islandName
+        Button.TextSize = 16
+        Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        Button.Parent = ScrollingFrame
 
-            Button.MouseButton1Click:Connect(function()
-                teleportToIsland(island)
-            end)
-        end
+        Button.MouseButton1Click:Connect(function()
+            teleportToLocation(position)
+        end)
     end
 
-    -- Update Scroll Canvas Size
     ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y)
 
-    -- Dragging Logic
-    local dragging, dragInput, dragStart, startPos
+    -- Special Teleports Frame
+    local SpecialFrame = Instance.new("Frame")
+    SpecialFrame.Size = UDim2.new(0, 200, 0, 200)
+    SpecialFrame.Position = UDim2.new(1, -420, 0, 10)
+    SpecialFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 80)
+    SpecialFrame.BorderSizePixel = 2
+    SpecialFrame.Visible = false
+    SpecialFrame.Parent = ScreenGui
 
-    Title.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = MainFrame.Position
+    local SpecialTitle = Instance.new("TextLabel")
+    SpecialTitle.Size = UDim2.new(1, 0, 0, 30)
+    SpecialTitle.Text = "Special Teleports"
+    SpecialTitle.TextSize = 18
+    SpecialTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SpecialTitle.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
+    SpecialTitle.Font = Enum.Font.SourceSansBold
+    SpecialTitle.Parent = SpecialFrame
 
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
+    local SpecialScroll = Instance.new("ScrollingFrame")
+    SpecialScroll.Size = UDim2.new(1, 0, 1, -40)
+    SpecialScroll.Position = UDim2.new(0, 0, 0, 40)
+    SpecialScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    SpecialScroll.ScrollBarThickness = 5
+    SpecialScroll.BackgroundTransparency = 1
+    SpecialScroll.Parent = SpecialFrame
+
+    local SpecialList = Instance.new("UIListLayout")
+    SpecialList.Parent = SpecialScroll
+    SpecialList.Padding = UDim.new(0, 5)
+
+    for specialName, position in pairs(SpecialTeleports) do
+        local Button = Instance.new("TextButton")
+        Button.Size = UDim2.new(1, 0, 0, 30)
+        Button.Text = specialName
+        Button.TextSize = 16
+        Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Button.BackgroundColor3 = Color3.fromRGB(100, 50, 150)
+        Button.Parent = SpecialScroll
+
+        Button.MouseButton1Click:Connect(function()
+            teleportToLocation(position)
+        end)
+    end
+
+    SpecialScroll.CanvasSize = UDim2.new(0, 0, 0, SpecialList.AbsoluteContentSize.Y)
+
+    SpecialButton.MouseButton1Click:Connect(function()
+        SpecialFrame.Visible = not SpecialFrame.Visible
     end)
 
-    Title.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
-
-    -- Close & Show Logic
     CloseButton.MouseButton1Click:Connect(function()
         ScreenGui:Destroy()
     end)
@@ -131,11 +176,9 @@ local function createUI()
     end)
 end
 
--- Initial UI creation
 createUI()
 
--- Recreate UI on respawn and destroy old UI
 player.CharacterAdded:Connect(function()
-    wait(0.5) -- Short delay to ensure character fully loads
+    wait(0.5)
     createUI()
-end)
+end) 
