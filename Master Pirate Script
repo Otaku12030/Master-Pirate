@@ -33,10 +33,8 @@ local IslandPositions = {
 -- Special teleport locations
 local SpecialTeleports = {
     ["Fruits Shop"] = Vector3.new(865, 79, -218),
-["Moria Boss"] = Vector3.new(-10325, 118, -2480),
-["GS Spawn"] = Vector3.new(-10842, 57, 9600),
-
-
+    ["Moria Boss"] = Vector3.new(-10325, 118, -2480),
+    ["GS Spawn"] = Vector3.new(-10842, 57, 9600),
 }
 
 local function createUI()
@@ -128,15 +126,6 @@ local function createUI()
     SpecialFrame.Visible = false
     SpecialFrame.Parent = ScreenGui
 
-    local SpecialTitle = Instance.new("TextLabel")
-    SpecialTitle.Size = UDim2.new(1, 0, 0, 30)
-    SpecialTitle.Text = "Special Teleports"
-    SpecialTitle.TextSize = 18
-    SpecialTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    SpecialTitle.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
-    SpecialTitle.Font = Enum.Font.SourceSansBold
-    SpecialTitle.Parent = SpecialFrame
-
     local SpecialScroll = Instance.new("ScrollingFrame")
     SpecialScroll.Size = UDim2.new(1, 0, 1, -40)
     SpecialScroll.Position = UDim2.new(0, 0, 0, 40)
@@ -149,6 +138,7 @@ local function createUI()
     SpecialList.Parent = SpecialScroll
     SpecialList.Padding = UDim.new(0, 5)
 
+    -- **Fix: Creating Special Teleport Buttons**
     for specialName, position in pairs(SpecialTeleports) do
         local Button = Instance.new("TextButton")
         Button.Size = UDim2.new(1, 0, 0, 30)
@@ -165,8 +155,10 @@ local function createUI()
 
     SpecialScroll.CanvasSize = UDim2.new(0, 0, 0, SpecialList.AbsoluteContentSize.Y)
 
+    local SpecialButtonClick = false
     SpecialButton.MouseButton1Click:Connect(function()
         SpecialFrame.Visible = not SpecialFrame.Visible
+        SpecialButtonClick = SpecialFrame.Visible
     end)
 
     CloseButton.MouseButton1Click:Connect(function()
@@ -175,7 +167,9 @@ local function createUI()
 
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if not gameProcessed and input.KeyCode == Enum.KeyCode.KeypadMinus then
-            MainFrame.Visible = not MainFrame.Visible
+            local newState = not MainFrame.Visible
+            MainFrame.Visible = newState
+            SpecialFrame.Visible = SpecialButtonClick and newState
         end
     end)
 end
@@ -185,4 +179,4 @@ createUI()
 player.CharacterAdded:Connect(function()
     wait(0.5)
     createUI()
-end) 
+end)
