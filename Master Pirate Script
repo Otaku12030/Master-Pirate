@@ -32,7 +32,7 @@ local IslandPositions = {
 
 -- Special teleport locations
 local SpecialTeleports = {
-    ["Fruits Shop"] = Vector3.new(-8000, 50, 3000),
+    ["Fruits Shop"] = Vector3.new(865, 79, -218),
 }
 
 local function createUI()
